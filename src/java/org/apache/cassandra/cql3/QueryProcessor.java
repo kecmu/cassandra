@@ -204,7 +204,6 @@ public class QueryProcessor implements QueryHandler
         ClientState clientState = queryState.getClientState();
         statement.checkAccess(clientState);
         statement.validate(clientState);
-        logger.info("processing state 3");
 
         ResultMessage result = statement.execute(queryState, options, queryStartNanoTime);
         return result == null ? new ResultMessage.Void() : result;

@@ -632,6 +632,7 @@ public class StorageProxy implements StorageProxyMBean
 
         try
         {
+            logger.info("processing state 3");
             for (IMutation mutation : mutations)
             {
                 if (mutation instanceof CounterMutation)
@@ -640,6 +641,7 @@ public class StorageProxy implements StorageProxyMBean
                 }
                 else
                 {
+                    logger.info("processing state 4");
                     WriteType wt = mutations.size() <= 1 ? WriteType.SIMPLE : WriteType.UNLOGGED_BATCH;
                     responseHandlers.add(performWrite(mutation, consistency_level, localDataCenter, standardWritePerformer, null, wt, queryStartNanoTime));
                 }
@@ -648,11 +650,15 @@ public class StorageProxy implements StorageProxyMBean
             // wait for writes.  throws TimeoutException if necessary
             for (AbstractWriteResponseHandler<IMutation> responseHandler : responseHandlers)
             {
+                logger.info("processing state 5");
                 responseHandler.get();
+                logger.info("processing state 6");
+
             }
         }
         catch (WriteTimeoutException|WriteFailureException ex)
         {
+            logger.info("exception catched 1");
             if (consistency_level == ConsistencyLevel.ANY)
             {
                 hintMutations(mutations);
@@ -679,6 +685,7 @@ public class StorageProxy implements StorageProxyMBean
         }
         catch (UnavailableException e)
         {
+            logger.info("exception catched 2");
             writeMetrics.unavailables.mark();
             writeMetricsMap.get(consistency_level).unavailables.mark();
             Tracing.trace("Unavailable");
@@ -686,6 +693,7 @@ public class StorageProxy implements StorageProxyMBean
         }
         catch (OverloadedException e)
         {
+            logger.info("exception catched 3");
             writeMetrics.unavailables.mark();
             writeMetricsMap.get(consistency_level).unavailables.mark();
             Tracing.trace("Overloaded");
@@ -881,7 +889,6 @@ public class StorageProxy implements StorageProxyMBean
                 mutateAtomically((Collection<Mutation>) mutations, consistencyLevel, updatesView, queryStartNanoTime);
             else {
                 mutate(mutations, consistencyLevel, queryStartNanoTime);
-                logger.info("processing state 5");
             }
         }
     }
