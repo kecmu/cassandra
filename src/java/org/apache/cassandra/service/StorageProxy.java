@@ -626,13 +626,12 @@ public class StorageProxy implements StorageProxyMBean
     {
         Tracing.trace("Determining replicas for mutation");
         final String localDataCenter = DatabaseDescriptor.getEndpointSnitch().getDatacenter(FBUtilities.getBroadcastAddress());
-
+        logger.info("local data center: {}", localDataCenter);
         long startTime = System.nanoTime();
         List<AbstractWriteResponseHandler<IMutation>> responseHandlers = new ArrayList<>(mutations.size());
 
         try
         {
-            logger.info("processing state 3");
             for (IMutation mutation : mutations)
             {
                 if (mutation instanceof CounterMutation)
@@ -641,8 +640,8 @@ public class StorageProxy implements StorageProxyMBean
                 }
                 else
                 {
-                    logger.info("processing state 4");
                     WriteType wt = mutations.size() <= 1 ? WriteType.SIMPLE : WriteType.UNLOGGED_BATCH;
+                    logger.info("processing state 2, write type: {}", wt);
                     responseHandlers.add(performWrite(mutation, consistency_level, localDataCenter, standardWritePerformer, null, wt, queryStartNanoTime));
                 }
             }
@@ -650,9 +649,7 @@ public class StorageProxy implements StorageProxyMBean
             // wait for writes.  throws TimeoutException if necessary
             for (AbstractWriteResponseHandler<IMutation> responseHandler : responseHandlers)
             {
-                logger.info("processing state 5");
                 responseHandler.get();
-                logger.info("processing state 6");
 
             }
         }
@@ -1097,7 +1094,7 @@ public class StorageProxy implements StorageProxyMBean
 
         // exit early if we can't fulfill the CL at this time
         responseHandler.assureSufficientLiveNodes();
-
+        logger.info("keyspace name: {}, performer type {}", keyspaceName, performer.getClass().getName());
         performer.apply(mutation, Iterables.concat(naturalEndpoints, pendingEndpoints), responseHandler, localDataCenter, consistency_level);
         return responseHandler;
     }
