@@ -200,7 +200,7 @@ public class QueryProcessor implements QueryHandler
     public ResultMessage processStatement(CQLStatement statement, QueryState queryState, QueryOptions options, long queryStartNanoTime)
     throws RequestExecutionException, RequestValidationException
     {
-        logger.trace("Process {} @CL.{}", statement, options.getConsistency());
+        logger.info("Process {} @CL.{}", statement, options.getConsistency());
         ClientState clientState = queryState.getClientState();
         statement.checkAccess(clientState);
         statement.validate(clientState);

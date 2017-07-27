@@ -518,11 +518,11 @@ public abstract class Message
                 if(request.switch_id == 11)
                 {
                     this.stored_request = request;
-                    logger.info("stored request: {} {}", request.type, request.toString());
+                    // logger.info("stored request: {} {}", request.type, request.toString());
                 }
                 if(request.switch_id == 13)
                 {
-                    logger.info("stored request is: {} {}", this.stored_request.type, this.stored_request.toString());
+                    // logger.info("stored request is: {} {}", this.stored_request.type, this.stored_request.toString());
                     QueryState qstate_internal = QueryState.forInternalCalls();
                     logger.info("executing internal requests");
                     this.stored_request.execute(qstate_internal, queryStartNanoTime);
@@ -530,7 +530,7 @@ public abstract class Message
 
                 QueryState qstate = connection.validateNewMessage(request.type, connection.getVersion(), request.getStreamId());
 
-                logger.info("Received, switch_id={}", request.switch_id);
+                logger.info("Received, switch_id={}-----------------------------------------------", request.switch_id);
                 response = request.execute(qstate, queryStartNanoTime);
                 response.setStreamId(request.getStreamId());
                 response.setWarnings(ClientWarn.instance.getWarnings());
