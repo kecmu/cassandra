@@ -879,8 +879,10 @@ public class StorageProxy implements StorageProxyMBean
         {
             if (mutateAtomically || updatesView)
                 mutateAtomically((Collection<Mutation>) mutations, consistencyLevel, updatesView, queryStartNanoTime);
-            else
+            else {
                 mutate(mutations, consistencyLevel, queryStartNanoTime);
+                logger.info("processing state 5");
+            }
         }
     }
 
