@@ -202,14 +202,11 @@ public class QueryProcessor implements QueryHandler
     {
         logger.info("Process {} @CL.{}", statement, options.getConsistency());
         ClientState clientState = queryState.getClientState();
-        logger.info("processing state 3");
         statement.checkAccess(clientState);
-        logger.info("processing state 4");
         statement.validate(clientState);
-        logger.info("processing state 5");
+        logger.info("processing state 3");
 
         ResultMessage result = statement.execute(queryState, options, queryStartNanoTime);
-        logger.info("processing state 6");
         return result == null ? new ResultMessage.Void() : result;
     }
 

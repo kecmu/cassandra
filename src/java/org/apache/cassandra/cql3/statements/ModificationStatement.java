@@ -430,6 +430,7 @@ public abstract class ModificationStatement implements CQLStatement
     private ResultMessage executeWithoutCondition(QueryState queryState, QueryOptions options, long queryStartNanoTime)
     throws RequestExecutionException, RequestValidationException
     {
+        logger.info("processing state 4");
         ConsistencyLevel cl = options.getConsistency();
         if (isCounter())
             cl.validateCounterForWrite(metadata());
@@ -437,9 +438,11 @@ public abstract class ModificationStatement implements CQLStatement
             cl.validateForWrite(metadata.keyspace);
 
         Collection<? extends IMutation> mutations = getMutations(options, false, options.getTimestamp(queryState), queryStartNanoTime);
-        if (!mutations.isEmpty())
+        if (!mutations.isEmpty()) {
+            logger.info("processing state 5");
             StorageProxy.mutateWithTriggers(mutations, cl, false, queryStartNanoTime);
-
+        }
+        logger.info("processing state 6");
         return null;
     }
 
