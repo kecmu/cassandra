@@ -515,11 +515,11 @@ public abstract class Message
                 if (connection.getVersion().isGreaterOrEqualTo(ProtocolVersion.V4))
                     ClientWarn.instance.captureWarnings();
 
-                if(request.switch_id == 11)
+                if(request.switch_id == 110)
                 {
                     this.stored_request = request;
                 }
-                if(request.switch_id == 13)
+                if(request.switch_id == 130)
                 {
                     QueryState qstate_internal = QueryState.forInternalCalls();
                     logger.info("executing internal requests");
