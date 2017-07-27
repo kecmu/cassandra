@@ -502,8 +502,10 @@ public class QueryProcessor implements QueryHandler
         ParsedStatement statement = parseStatement(queryStr);
         // Set keyspace for statement that require login
         logger.info("statement: {}", statement.getClass().getName());
-        if (statement instanceof CFStatement)
+        if (statement instanceof CFStatement) {
+            logger.info("processing state 2");
             ((CFStatement) statement).prepareKeyspace(clientState);
+        }
         Tracing.trace("Preparing statement");
         return statement.prepare();
     }

@@ -18,8 +18,11 @@
 package org.apache.cassandra.cql3.statements;
 
 import org.apache.cassandra.cql3.CFName;
+import org.apache.cassandra.cql3.QueryProcessor;
 import org.apache.cassandra.service.ClientState;
 import org.apache.cassandra.exceptions.InvalidRequestException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Abstract class for statements that apply on a given column family.
@@ -27,6 +30,7 @@ import org.apache.cassandra.exceptions.InvalidRequestException;
 public abstract class CFStatement extends ParsedStatement
 {
     protected final CFName cfName;
+    private static final Logger logger = LoggerFactory.getLogger(CFStatement.class);
 
     protected CFStatement(CFName cfName)
     {
@@ -40,7 +44,10 @@ public abstract class CFStatement extends ParsedStatement
             // XXX: We explicitly only want to call state.getKeyspace() in this case, as we don't want to throw
             // if not logged in any keyspace but a keyspace is explicitly set on the statement. So don't move
             // the call outside the 'if' or replace the method by 'prepareKeyspace(state.getKeyspace())'
+            logger.info("processing state 3");
+            logger.info("cfName: {}", cfName);
             cfName.setKeyspace(state.getKeyspace(), true);
+            logger.info("processing state 4");
         }
     }
 
