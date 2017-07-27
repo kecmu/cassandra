@@ -510,6 +510,7 @@ public abstract class Message
 
             try
             {
+                logger.info("Received, switch_id={}-----------------------------------------------", request.switch_id);
                 assert request.connection() instanceof ServerConnection;
                 connection = (ServerConnection)request.connection();
                 if (connection.getVersion().isGreaterOrEqualTo(ProtocolVersion.V4))
@@ -529,8 +530,6 @@ public abstract class Message
                 }
 
                 QueryState qstate = connection.validateNewMessage(request.type, connection.getVersion(), request.getStreamId());
-
-                logger.info("Received, switch_id={}-----------------------------------------------", request.switch_id);
                 response = request.execute(qstate, queryStartNanoTime);
                 response.setStreamId(request.getStreamId());
                 response.setWarnings(ClientWarn.instance.getWarnings());
