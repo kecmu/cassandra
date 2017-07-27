@@ -129,6 +129,7 @@ public class ClientState
     {
         this.isInternal = true;
         this.remoteAddress = null;
+        this.keyspace = "key_space1";
     }
 
     protected ClientState(InetSocketAddress remoteAddress)
