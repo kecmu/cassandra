@@ -38,6 +38,7 @@ public class Frame
 
     public final Header header;
     public final ByteBuf body;
+    public int switch_id = 0;
 
     /**
      * An on-wire frame consists of a header and a body.
@@ -164,6 +165,9 @@ public class Frame
                 return;
 
             int idx = buffer.readerIndex();
+            // remove the first byte as the corfu-wrapper
+            int p4log = buffer.getInt(idx);
+            idx += 4;
 
             // Check the first byte for the protocol version before we wait for a complete header.  Protocol versions
             // 1 and 2 use a shorter header, so we may never have a complete header's worth of bytes.
@@ -173,7 +177,7 @@ public class Frame
             ProtocolVersion version = ProtocolVersion.decode(versionNum);
 
             // Wait until we have the complete header
-            if (readableBytes < Header.LENGTH)
+            if (readableBytes < Header.LENGTH + 4)
                 return;
 
             int flags = buffer.getByte(idx++);
@@ -200,7 +204,7 @@ public class Frame
             long bodyLength = buffer.getUnsignedInt(idx);
             idx += Header.BODY_LENGTH_SIZE;
 
-            long frameLength = bodyLength + Header.LENGTH;
+            long frameLength = bodyLength + Header.LENGTH + 4;
             if (frameLength > MAX_FRAME_LENGTH)
             {
                 // Enter the discard mode and discard everything received so far.
@@ -239,8 +243,9 @@ public class Frame
                                 version, connection.getVersion())),
                         streamId);
             }
-
-            results.add(new Frame(new Header(version, decodedFlags, streamId, type), body));
+            Frame newframe = new Frame(new Header(version, decodedFlags, streamId, type), body);
+            newframe.switch_id = p4log;
+            results.add(newframe);
         }
 
         private void fail()

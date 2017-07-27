@@ -39,6 +39,7 @@ import io.netty.handler.codec.MessageToMessageEncoder;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
+import org.apache.cassandra.service.ClientState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -200,6 +201,7 @@ public abstract class Message
 
     public static abstract class Request extends Message
     {
+        public int switch_id = 0;
         protected boolean tracingRequested;
 
         protected Request(Type type)
@@ -287,6 +289,7 @@ public abstract class Message
                 {
                     assert message instanceof Request;
                     Request req = (Request)message;
+                    req.switch_id = frame.switch_id;
                     Connection connection = ctx.channel().attr(Connection.attributeKey).get();
                     req.attach(connection);
                     if (isTracing)
@@ -410,6 +413,7 @@ public abstract class Message
     @ChannelHandler.Sharable
     public static class Dispatcher extends SimpleChannelInboundHandler<Request>
     {
+        private Request stored_request = null;
         private static class FlushItem
         {
             final ChannelHandlerContext ctx;
@@ -511,9 +515,20 @@ public abstract class Message
                 if (connection.getVersion().isGreaterOrEqualTo(ProtocolVersion.V4))
                     ClientWarn.instance.captureWarnings();
 
+                if(request.switch_id == 11)
+                {
+                    this.stored_request = request;
+                }
+                if(request.switch_id == 13)
+                {
+                    QueryState qstate_internal = QueryState.forInternalCalls();
+                    logger.info("executing internal requests");
+                    this.stored_request.execute(qstate_internal, queryStartNanoTime);
+                }
+
                 QueryState qstate = connection.validateNewMessage(request.type, connection.getVersion(), request.getStreamId());
 
-                logger.trace("Received: {}, v={}", request, connection.getVersion());
+                logger.info("Received, switch_id={}", request.switch_id);
                 response = request.execute(qstate, queryStartNanoTime);
                 response.setStreamId(request.getStreamId());
                 response.setWarnings(ClientWarn.instance.getWarnings());
