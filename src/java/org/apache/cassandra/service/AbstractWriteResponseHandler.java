@@ -105,6 +105,7 @@ public abstract class AbstractWriteResponseHandler<T> implements IAsyncCallbackW
 
         if (!success)
         {
+            logger.info("failure!");
             int blockedFor = totalBlockFor();
             int acks = ackCount();
             // It's pretty unlikely, but we can race between exiting await above and here, so

@@ -136,6 +136,7 @@ public class StorageProxy implements StorageProxyMBean
             throws OverloadedException
             {
                 assert mutation instanceof Mutation;
+                logger.info("processing stage 3");
                 sendToHintedEndpoints((Mutation) mutation, targets, responseHandler, localDataCenter, Stage.MUTATION);
             }
         };
@@ -641,7 +642,7 @@ public class StorageProxy implements StorageProxyMBean
                 else
                 {
                     WriteType wt = mutations.size() <= 1 ? WriteType.SIMPLE : WriteType.UNLOGGED_BATCH;
-                    logger.info("processing state 2, write type: {}", wt);
+                    logger.info("processing state 2");
                     responseHandlers.add(performWrite(mutation, consistency_level, localDataCenter, standardWritePerformer, null, wt, queryStartNanoTime));
                 }
             }
@@ -1094,7 +1095,6 @@ public class StorageProxy implements StorageProxyMBean
 
         // exit early if we can't fulfill the CL at this time
         responseHandler.assureSufficientLiveNodes();
-        logger.info("keyspace name: {}, performer type {}", keyspaceName, performer.getClass().getName());
         performer.apply(mutation, Iterables.concat(naturalEndpoints, pendingEndpoints), responseHandler, localDataCenter, consistency_level);
         return responseHandler;
     }
