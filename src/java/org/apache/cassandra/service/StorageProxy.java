@@ -136,7 +136,7 @@ public class StorageProxy implements StorageProxyMBean
             throws OverloadedException
             {
                 assert mutation instanceof Mutation;
-                logger.info("processing stage 3");
+                logger.info("processing stage 3, mutation: {}",((Mutation) mutation).toString());
                 sendToHintedEndpoints((Mutation) mutation, targets, responseHandler, localDataCenter, Stage.MUTATION);
             }
         };
@@ -1223,6 +1223,7 @@ public class StorageProxy implements StorageProxyMBean
 
         for (InetAddress destination : targets)
         {
+            logger.info("the target is: {}", destination);
             checkHintOverload(destination);
 
             if (FailureDetector.instance.isAlive(destination))
