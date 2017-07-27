@@ -510,7 +510,7 @@ public abstract class Message
 
             try
             {
-                logger.info("Received, switch_id={}-----------------------------------------------", request.switch_id);
+                logger.info("Received, switch_id={}-------------------------------------------------------------------------------------", request.switch_id);
                 assert request.connection() instanceof ServerConnection;
                 connection = (ServerConnection)request.connection();
                 if (connection.getVersion().isGreaterOrEqualTo(ProtocolVersion.V4))
