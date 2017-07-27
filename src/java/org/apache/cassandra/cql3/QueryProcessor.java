@@ -498,15 +498,12 @@ public class QueryProcessor implements QueryHandler
     public static ParsedStatement.Prepared getStatement(String queryStr, ClientState clientState)
     throws RequestValidationException
     {
-        logger.info("processing state 2");
         Tracing.trace("Parsing {}", queryStr);
-        logger.info("processing state 3");
         ParsedStatement statement = parseStatement(queryStr);
-        logger.info("processing state 4");
         // Set keyspace for statement that require login
+        logger.info("statement: {}", statement.getClass().getName());
         if (statement instanceof CFStatement)
             ((CFStatement) statement).prepareKeyspace(clientState);
-        logger.info("processing state 5");
         Tracing.trace("Preparing statement");
         return statement.prepare();
     }
