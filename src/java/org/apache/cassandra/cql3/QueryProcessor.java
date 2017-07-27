@@ -230,15 +230,16 @@ public class QueryProcessor implements QueryHandler
     {
         logger.info("processing state 1");
         ParsedStatement.Prepared p = getStatement(queryString, queryState.getClientState().cloneWithKeyspaceIfSet(options.getKeyspace()));
+        logger.info("processing state 2");
         options.prepare(p.boundNames);
+        logger.info("processing state 3");
         CQLStatement prepared = p.statement;
         if (prepared.getBoundTerms() != options.getValues().size())
             throw new InvalidRequestException("Invalid amount of bind variables");
-
+        logger.info("processing state 4");
         if (!queryState.getClientState().isInternal)
             metrics.regularStatementsExecuted.inc();
 
-        logger.info("processing state 2");
         return processStatement(prepared, queryState, options, queryStartNanoTime);
     }
 
