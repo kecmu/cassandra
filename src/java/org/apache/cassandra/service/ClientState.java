@@ -270,8 +270,10 @@ public class ClientState
 
     public String getKeyspace() throws InvalidRequestException
     {
-        if (keyspace == null)
+        if (keyspace == null) {
+            logger.info("you don't have a valid keyspace!");
             throw new InvalidRequestException("No keyspace has been specified. USE a keyspace, or explicitly specify keyspace.tablename");
+        }
         return keyspace;
     }
 
