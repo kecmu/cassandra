@@ -221,12 +221,14 @@ public class QueryProcessor implements QueryHandler
                                  Map<String, ByteBuffer> customPayload,
                                  long queryStartNanoTime) throws RequestExecutionException, RequestValidationException
     {
+        logger.info("processing state 0");
         return process(query, state, options, queryStartNanoTime);
     }
 
     public ResultMessage process(String queryString, QueryState queryState, QueryOptions options, long queryStartNanoTime)
     throws RequestExecutionException, RequestValidationException
     {
+        logger.info("processing state 1");
         ParsedStatement.Prepared p = getStatement(queryString, queryState.getClientState().cloneWithKeyspaceIfSet(options.getKeyspace()));
         options.prepare(p.boundNames);
         CQLStatement prepared = p.statement;
@@ -236,6 +238,7 @@ public class QueryProcessor implements QueryHandler
         if (!queryState.getClientState().isInternal)
             metrics.regularStatementsExecuted.inc();
 
+        logger.info("processing state 2");
         return processStatement(prepared, queryState, options, queryStartNanoTime);
     }
 
