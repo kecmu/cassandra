@@ -796,7 +796,6 @@ public abstract class ModificationStatement implements CQLStatement
 
         public ParsedStatement.Prepared prepare()
         {
-            logger.info("processing state: a");
             VariableSpecifications boundNames = getBoundVariables();
             ModificationStatement statement = prepare(boundNames);
             TableMetadata metadata = Schema.instance.validateTable(keyspace(), columnFamily());
@@ -805,7 +804,6 @@ public abstract class ModificationStatement implements CQLStatement
 
         public ModificationStatement prepare(VariableSpecifications boundNames)
         {
-            logger.info("processing state: b");
             TableMetadata metadata = Schema.instance.validateTable(keyspace(), columnFamily());
 
             Attributes preparedAttributes = attrs.prepare(keyspace(), columnFamily());

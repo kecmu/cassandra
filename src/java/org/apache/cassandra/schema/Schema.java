@@ -448,7 +448,6 @@ public final class Schema
 
         KeyspaceMetadata keyspace = keyspaces.getNullable(keyspaceName);
         if (keyspace == null) {
-            logger.info("processing stage 1.11");
             throw new KeyspaceNotDefinedException(format("keyspace %s does not exist", keyspaceName));
         }
 

@@ -153,11 +153,12 @@ public class UpdateStatement extends ModificationStatement
             WhereClause.Builder whereClause = new WhereClause.Builder();
             Operations operations = new Operations(type);
             boolean hasClusteringColumnsSet = false;
+            logger.info("processing stage a");
 
             for (int i = 0; i < columnNames.size(); i++)
             {
                 ColumnMetadata def = getColumnDefinition(metadata, columnNames.get(i));
-
+                logger.info("processing stage b{}", i);
                 if (def.isClusteringColumn())
                     hasClusteringColumnsSet = true;
 
@@ -176,7 +177,6 @@ public class UpdateStatement extends ModificationStatement
             }
 
             boolean applyOnlyToStaticColumns = !hasClusteringColumnsSet && appliesOnlyToStaticColumns(operations, conditions);
-
             StatementRestrictions restrictions = new StatementRestrictions(type,
                                                                            metadata,
                                                                            whereClause.build(),
