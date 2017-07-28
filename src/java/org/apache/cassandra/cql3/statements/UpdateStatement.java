@@ -158,12 +158,12 @@ public class UpdateStatement extends ModificationStatement
             for (int i = 0; i < columnNames.size(); i++)
             {
                 ColumnMetadata def = getColumnDefinition(metadata, columnNames.get(i));
-                logger.info("processing stage b{}", i);
+                logger.info("processing stage b: {}", def);
                 if (def.isClusteringColumn())
                     hasClusteringColumnsSet = true;
 
                 Term.Raw value = columnValues.get(i);
-
+                logger.info("processing stage c: {}", value);
                 if (def.isPrimaryKeyColumn())
                 {
                     whereClause.add(new SingleColumnRelation(columnNames.get(i), Operator.EQ, value));
@@ -185,6 +185,7 @@ public class UpdateStatement extends ModificationStatement
                                                                            false,
                                                                            false);
 
+            logger.info("prepared result: {} {} {} {} {} {} {}", type, boundNames.size(), metadata, operations, restrictions, conditions, attrs);
             return new UpdateStatement(type,
                                        boundNames.size(),
                                        metadata,
