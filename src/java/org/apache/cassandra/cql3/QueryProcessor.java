@@ -232,6 +232,7 @@ public class QueryProcessor implements QueryHandler
         ParsedStatement.Prepared p = getStatement(queryString, queryState.getClientState().cloneWithKeyspaceIfSet(options.getKeyspace()));
         options.prepare(p.boundNames);
         CQLStatement prepared = p.statement;
+        logger.info("processing state 1.2");
         if (prepared.getBoundTerms() != options.getValues().size())
             throw new InvalidRequestException("Invalid amount of bind variables");
         if (!queryState.getClientState().isInternal)
@@ -506,6 +507,7 @@ public class QueryProcessor implements QueryHandler
             ((CFStatement) statement).prepareKeyspace(clientState);
         }
         Tracing.trace("Preparing statement");
+        logger.info("processing stage 1.1");
         return statement.prepare();
     }
 
