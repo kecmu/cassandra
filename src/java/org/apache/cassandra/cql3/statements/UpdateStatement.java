@@ -185,7 +185,7 @@ public class UpdateStatement extends ModificationStatement
                                                                            false,
                                                                            false);
 
-            logger.info("prepared result: {} {} {} {} {} {} {}", type, boundNames.size(), metadata, operations, restrictions, conditions, attrs);
+            logger.info("prepared result: {} {} {} {} {} {} {}", type, boundNames.size(), metadata, operations.toString(), restrictions.getIndexRestrictions(), conditions.isEmpty(), attrs.toString());
             return new UpdateStatement(type,
                                        boundNames.size(),
                                        metadata,
