@@ -414,6 +414,7 @@ public abstract class Message
     public static class Dispatcher extends SimpleChannelInboundHandler<Request>
     {
         private Request stored_request = null;
+        private QueryState stored_state = null;
         private static class FlushItem
         {
             final ChannelHandlerContext ctx;
@@ -516,20 +517,22 @@ public abstract class Message
                 if (connection.getVersion().isGreaterOrEqualTo(ProtocolVersion.V4))
                     ClientWarn.instance.captureWarnings();
 
+                QueryState qstate = connection.validateNewMessage(request.type, connection.getVersion(), request.getStreamId());
+
                 if(request.switch_id == 11)
                 {
                     this.stored_request = request;
+                    this.stored_state = qstate;
                     // logger.info("stored request: {} {}", request.type, request.toString());
                 }
                 if(request.switch_id == 13)
                 {
                     // logger.info("stored request is: {} {}", this.stored_request.type, this.stored_request.toString());
-                    QueryState qstate_internal = QueryState.forInternalCalls();
+                    // QueryState qstate_internal = QueryState.forInternalCalls();
                     logger.info("executing internal requests");
-                    this.stored_request.execute(qstate_internal, queryStartNanoTime);
+                    long t_queryStartNanoTime = System.nanoTime();
+                    this.stored_request.execute(this.stored_state, t_queryStartNanoTime);
                 }
-
-                QueryState qstate = connection.validateNewMessage(request.type, connection.getVersion(), request.getStreamId());
                 response = request.execute(qstate, queryStartNanoTime);
                 response.setStreamId(request.getStreamId());
                 response.setWarnings(ClientWarn.instance.getWarnings());

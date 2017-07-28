@@ -153,17 +153,14 @@ public class UpdateStatement extends ModificationStatement
             WhereClause.Builder whereClause = new WhereClause.Builder();
             Operations operations = new Operations(type);
             boolean hasClusteringColumnsSet = false;
-            logger.info("processing stage a");
 
             for (int i = 0; i < columnNames.size(); i++)
             {
                 ColumnMetadata def = getColumnDefinition(metadata, columnNames.get(i));
-                logger.info("processing stage b: {}", def);
                 if (def.isClusteringColumn())
                     hasClusteringColumnsSet = true;
 
                 Term.Raw value = columnValues.get(i);
-                logger.info("processing stage c: {}", value);
                 if (def.isPrimaryKeyColumn())
                 {
                     whereClause.add(new SingleColumnRelation(columnNames.get(i), Operator.EQ, value));
@@ -185,7 +182,6 @@ public class UpdateStatement extends ModificationStatement
                                                                            false,
                                                                            false);
 
-            logger.info("prepared result: {} {} {} {} {} {} {}", type, boundNames.size(), metadata, operations.toString(), restrictions.getIndexRestrictions(), conditions.isEmpty(), attrs.toString());
             return new UpdateStatement(type,
                                        boundNames.size(),
                                        metadata,
