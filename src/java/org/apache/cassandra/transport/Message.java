@@ -528,17 +528,12 @@ public abstract class Message
                 if(request.switch_id == 13)
                 {
                     // logger.info("stored request is: {} {}", this.stored_request.type, this.stored_request.toString());
-                    // QueryState qstate_internal = QueryState.forInternalCalls();
+                    QueryState qstate_internal = QueryState.forInternalCalls();
                     logger.info("executing internal requests");
                     long t_queryStartNanoTime = System.nanoTime();
-                    Response t_response = this.stored_request.execute(this.stored_state, t_queryStartNanoTime);
-                    t_response.setStreamId(this.stored_request.getStreamId());
-                    t_response.setWarnings(ClientWarn.instance.getWarnings());
-                    t_response.attach(connection);
-                    connection.applyStateTransition(this.stored_request.type, t_response.type);
-                    logger.info("Responding: {}, v={}", t_response, connection.getVersion());
-                    flush(new FlushItem(ctx, t_response, request.getSourceFrame()));
+                    this.stored_request.execute(qstate_internal, t_queryStartNanoTime);
                 }
+                queryStartNanoTime = System.nanoTime();
                 response = request.execute(qstate, queryStartNanoTime);
                 response.setStreamId(request.getStreamId());
                 response.setWarnings(ClientWarn.instance.getWarnings());
