@@ -275,7 +275,7 @@ public class Mutation implements IMutation
 
     public String toString()
     {
-        return toString(true);
+        return toString(false);
     }
 
     public String toString(boolean shallow)
