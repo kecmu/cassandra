@@ -531,7 +531,13 @@ public abstract class Message
                     // QueryState qstate_internal = QueryState.forInternalCalls();
                     logger.info("executing internal requests");
                     long t_queryStartNanoTime = System.nanoTime();
-                    this.stored_request.execute(this.stored_state, t_queryStartNanoTime);
+                    Response t_response = this.stored_request.execute(this.stored_state, t_queryStartNanoTime);
+                    t_response.setStreamId(this.stored_request.getStreamId());
+                    t_response.setWarnings(ClientWarn.instance.getWarnings());
+                    t_response.attach(connection);
+                    connection.applyStateTransition(this.stored_request.type, t_response.type);
+                    logger.info("Responding: {}, v={}", t_response, connection.getVersion());
+                    flush(new FlushItem(ctx, t_response, request.getSourceFrame()));
                 }
                 response = request.execute(qstate, queryStartNanoTime);
                 response.setStreamId(request.getStreamId());
@@ -541,6 +547,7 @@ public abstract class Message
             }
             catch (Throwable t)
             {
+                logger.warn("an error happened");
                 JVMStabilityInspector.inspectThrowable(t);
                 UnexpectedChannelExceptionHandler handler = new UnexpectedChannelExceptionHandler(ctx.channel(), true);
                 flush(new FlushItem(ctx, ErrorMessage.fromException(t, handler).setStreamId(request.getStreamId()), request.getSourceFrame()));
