@@ -28,6 +28,7 @@ import com.google.common.collect.Sets;
 
 import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.cql3.functions.*;
+import org.apache.cassandra.cql3.statements.ModificationStatement;
 import org.apache.cassandra.db.ColumnFamilyStore;
 import org.apache.cassandra.db.Keyspace;
 import org.apache.cassandra.db.KeyspaceNotDefinedException;
@@ -44,6 +45,8 @@ import org.apache.cassandra.io.sstable.Descriptor;
 import org.apache.cassandra.locator.LocalStrategy;
 import org.apache.cassandra.utils.Pair;
 import org.cliffc.high_scale_lib.NonBlockingHashMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static java.lang.String.format;
 
@@ -51,6 +54,7 @@ import static com.google.common.collect.Iterables.size;
 
 public final class Schema
 {
+    protected static final Logger logger = LoggerFactory.getLogger(Schema.class);
     public static final Schema instance = new Schema();
 
     private volatile Keyspaces keyspaces = Keyspaces.none();
@@ -443,8 +447,10 @@ public final class Schema
             throw new InvalidRequestException("non-empty table is required");
 
         KeyspaceMetadata keyspace = keyspaces.getNullable(keyspaceName);
-        if (keyspace == null)
+        if (keyspace == null) {
+            logger.info("processing stage 1.11");
             throw new KeyspaceNotDefinedException(format("keyspace %s does not exist", keyspaceName));
+        }
 
         TableMetadata metadata = keyspace.getTableOrViewNullable(tableName);
         if (metadata == null)
