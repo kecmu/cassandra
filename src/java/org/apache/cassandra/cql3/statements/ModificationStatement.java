@@ -804,6 +804,7 @@ public abstract class ModificationStatement implements CQLStatement
 
         public ModificationStatement prepare(VariableSpecifications boundNames)
         {
+            logger.info("processing stage 1.11");
             TableMetadata metadata = Schema.instance.validateTable(keyspace(), columnFamily());
 
             Attributes preparedAttributes = attrs.prepare(keyspace(), columnFamily());
