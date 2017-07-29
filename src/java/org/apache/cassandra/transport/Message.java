@@ -505,14 +505,14 @@ public abstract class Message
         {
             super(false);
             this.replay_client = new SimpleClient("127.0.0.1", 9042);
-            try
+            /*try
             {
                 this.replay_client.connect(false);
             }
             catch (Exception e){
                 logger.error("cannot initialize replay client, system exiting.");
                 System.exit(1);
-            }
+            }*/
         }
 
         @Override
