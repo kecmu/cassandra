@@ -50,6 +50,7 @@ import org.apache.cassandra.service.ClientWarn;
 import org.apache.cassandra.transport.messages.*;
 import org.apache.cassandra.service.QueryState;
 import org.apache.cassandra.utils.JVMStabilityInspector;
+import org.apache.cassandra.transport.SimpleClient;
 
 /**
  * A message from the CQL binary protocol.
@@ -418,6 +419,7 @@ public abstract class Message
     public static class Dispatcher extends SimpleChannelInboundHandler<Request>
     {
         private int log_id = -1;
+        private SimpleClient replay_client;
         private static class FlushItem
         {
             final ChannelHandlerContext ctx;
@@ -502,6 +504,15 @@ public abstract class Message
         public Dispatcher()
         {
             super(false);
+            this.replay_client = new SimpleClient("127.0.0.1", 9042);
+            try
+            {
+                this.replay_client.connect(false);
+            }
+            catch (Exception e){
+                logger.error("cannot initialize replay client, system exiting.");
+                System.exit(1);
+            }
         }
 
         @Override
