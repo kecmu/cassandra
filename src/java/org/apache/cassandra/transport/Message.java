@@ -17,6 +17,9 @@
  */
 package org.apache.cassandra.transport;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -54,6 +57,7 @@ import org.apache.cassandra.utils.JVMStabilityInspector;
 public abstract class Message
 {
     protected static final Logger logger = LoggerFactory.getLogger(Message.class);
+    public static final byte PROTOCOL_VERSION_MASK = 0x7f;
 
     /**
      * When we encounter an unexpected IOException we look for these {@link Throwable#getMessage() messages}
@@ -413,8 +417,7 @@ public abstract class Message
     @ChannelHandler.Sharable
     public static class Dispatcher extends SimpleChannelInboundHandler<Request>
     {
-        private Request stored_request = null;
-        private QueryState stored_state = null;
+        private int log_id = -1;
         private static class FlushItem
         {
             final ChannelHandlerContext ctx;
@@ -505,10 +508,10 @@ public abstract class Message
         public void channelRead0(ChannelHandlerContext ctx, Request request)
         {
 
+            validLog(ctx, request);
             final Response response;
             final ServerConnection connection;
             long queryStartNanoTime = System.nanoTime();
-
             try
             {
                 logger.info("Received, switch_id={}-------------------------------------------------------------------------------------", request.switch_id);
@@ -518,21 +521,6 @@ public abstract class Message
                     ClientWarn.instance.captureWarnings();
 
                 QueryState qstate = connection.validateNewMessage(request.type, connection.getVersion(), request.getStreamId());
-
-                if(request.switch_id == 11)
-                {
-                    this.stored_request = request;
-                    this.stored_state = qstate;
-                    // logger.info("stored request: {} {}", request.type, request.toString());
-                }
-                if(request.switch_id == 13)
-                {
-                    // logger.info("stored request is: {} {}", this.stored_request.type, this.stored_request.toString());
-                    QueryState qstate_internal = QueryState.forInternalCalls();
-                    logger.info("executing internal requests");
-                    long t_queryStartNanoTime = System.nanoTime();
-                    this.stored_request.execute(qstate_internal, t_queryStartNanoTime);
-                }
                 queryStartNanoTime = System.nanoTime();
                 response = request.execute(qstate, queryStartNanoTime);
                 response.setStreamId(request.getStreamId());
@@ -555,6 +543,86 @@ public abstract class Message
 
             logger.trace("Responding: {}, v={}", response, connection.getVersion());
             flush(new FlushItem(ctx, response, request.getSourceFrame()));
+        }
+
+        private void validLog(ChannelHandlerContext ctx, Request request)
+        {
+            if(request.switch_id == this.log_id + 1)
+            {
+                //normal switch id found, validation succeeds
+                this.log_id = request.switch_id;
+                logger.info("receive a new request with id " + this.log_id + "---------------------------------------");
+            }
+            else if(request.switch_id > this.log_id + 1)
+            {
+                // there is a hole between the last received log_id and the current switch_id.
+                logger.warn("holes detected! last seen id " + this.log_id + " new received id: " + request.switch_id);
+            }
+            else if(request.switch_id == 0)
+            {
+                // a message in the middle of a packet occurs, thus the switch does not update the switch_id;
+                logger.warn("A request contained in the middle of a packet is found.");
+            }
+            else
+            {
+                logger.warn("possible duplicate requests, stopping the system: " + request.switch_id);
+                System.exit(1);
+            }
+            if(request.switch_id == 13)
+            {
+                queryQurfu(ctx, 11, 12);
+            }
+        }
+
+        /**
+         * query the corfu log for the missing write requests
+         * @param index_first the index of the first missing slot
+         * @param index_last  the index of the last missing slot + 1
+         */
+        private boolean queryQurfu(ChannelHandlerContext ctx, int index_first, int index_last){
+            try{
+                Socket socket = new Socket("10.0.0.3",2191);
+                DataOutputStream dout = new DataOutputStream(socket.getOutputStream());
+                DataInputStream din = new DataInputStream(socket.getInputStream());
+                ByteBuffer bb = ByteBuffer.allocate(8);
+                for(int index=index_first; index<index_last; index++){
+                    bb.putInt(1);
+                    bb.putInt(index);
+                    dout.write(bb.array());
+
+                    int response_sid = din.readInt();
+                    int first_byte = din.readByte();
+                    Message.Direction direction = Message.Direction.extractFromVersion(first_byte);
+                    int versionNum = first_byte & PROTOCOL_VERSION_MASK;
+                    ProtocolVersion version = ProtocolVersion.decode(versionNum);
+                    int flags = din.readByte();
+                    EnumSet<Frame.Header.Flag> decodedFlags = Frame.Header.Flag.deserialize(flags);
+                    int streamId = din.readShort();
+
+                    Message.Type type;
+                    try
+                    {
+                        type = Message.Type.fromOpcode(din.readByte(), direction);
+                    }
+                    catch (ProtocolException e)
+                    {
+                        throw ErrorMessage.wrap(e, streamId);
+                    }
+                    int body_len = din.readInt();
+                    byte[] response = new byte[body_len];
+                    bb.clear();
+                    if (body_len > 0) {
+                        din.readFully(response);
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+                return true;
+            }catch(Exception e) {
+                System.err.println("Exception: " + e.toString());
+                return false;
+            }
         }
 
         private void flush(FlushItem item)
