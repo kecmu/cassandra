@@ -276,6 +276,7 @@ public class Frame
             ByteBuf header = CBUtil.allocator.buffer(Header.LENGTH);
 
             Message.Type type = frame.header.type;
+            header.writeInt(0);
             header.writeByte(type.direction.addToVersion(frame.header.version.asInt()));
             header.writeByte(Header.Flag.serialize(frame.header.flags));
 
