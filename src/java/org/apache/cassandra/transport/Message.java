@@ -590,7 +590,7 @@ public abstract class Message
                 }
                 catch (Exception e){
                     logger.error(e.getMessage());
-                    // System.exit(1);
+                    System.exit(1);
                 }
                 Socket socket = new Socket("10.0.0.3",2191);
                 DataOutputStream dout = new DataOutputStream(socket.getOutputStream());
