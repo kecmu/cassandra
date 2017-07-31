@@ -639,8 +639,8 @@ public abstract class Message
                     if(type.opcode != 7)
                     {
                         din.skipBytes(body_len);
-                        if(response_sid != 0)
-                            response_count += 1;
+                        if(response_sid != 0){
+                            response_count += 1;}
                         logger.info("skipping missing query with id {}", response_sid);
                         continue;
                     }
@@ -658,7 +658,8 @@ public abstract class Message
                         if(body_len > (query_string_len + 4)){
                             din.skipBytes(body_len - query_string_len - 4);
                         }
-                        response_count += 1;
+                        if(response_sid>0){
+                        response_count += 1;}
                     } else {
                         // missing query is not replayed successfully.
                         System.exit(1);
