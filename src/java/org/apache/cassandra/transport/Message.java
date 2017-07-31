@@ -629,6 +629,12 @@ public abstract class Message
                         throw ErrorMessage.wrap(e, streamId);
                     }
                     int body_len = din.readInt();
+                    if(type.opcode != 7)
+                    {
+                        din.skipBytes(body_len);
+                        response_count += 1;
+                        continue;
+                    }
                     int query_string_len = din.readInt();
                     byte[] response = new byte[query_string_len];
                     if (query_string_len > 0) {
