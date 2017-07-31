@@ -564,7 +564,7 @@ public abstract class Message
             else if(request.switch_id == 0)
             {
                 // a message in the middle of a packet occurs, thus the switch does not update the switch_id;
-                logger.warn("A request contained in the middle of a packet is found.");
+                logger.warn("A request contained in the middle of a packet is found. from: {}", request.connection().channel().remoteAddress());
             }
             else
             {
