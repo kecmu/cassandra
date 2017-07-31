@@ -601,7 +601,7 @@ public abstract class Message
                 DataOutputStream dout = new DataOutputStream(socket.getOutputStream());
                 DataInputStream din = new DataInputStream(socket.getInputStream());
 
-                ByteBuffer bb = ByteBuffer.allocate(8);
+                ByteBuffer bb = ByteBuffer.allocate(12);
                 bb.putInt(1);
                 bb.putInt(index_first);
                 bb.putInt(index_last);
