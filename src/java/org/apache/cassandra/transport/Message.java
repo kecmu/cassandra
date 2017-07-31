@@ -606,7 +606,8 @@ public abstract class Message
                 bb.putInt(index_first);
                 bb.putInt(index_last);
                 dout.write(bb.array());
-                while(din.available() > 0)
+                int response_count = 0;
+                while(response_count < (index_last - index_first))
                 {
                     int response_sid = din.readInt();
                     int first_byte = din.readByte();
@@ -641,6 +642,7 @@ public abstract class Message
                         if(body_len > (query_string_len + 4)){
                             din.skipBytes(body_len - query_string_len - 4);
                         }
+                        response_count += 1;
                     } else {
                         // missing query is not replayed successfully.
                         System.exit(1);
