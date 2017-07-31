@@ -1222,14 +1222,12 @@ public class StorageProxy implements StorageProxyMBean
 
         for (InetAddress destination : targets)
         {
-            logger.info("the target is: {}", destination);
             checkHintOverload(destination);
 
             if (FailureDetector.instance.isAlive(destination))
             {
                 if (canDoLocalRequest(destination))
                 {
-                    logger.info("processing stage 4");
                     insertLocal = true;
                 }
                 else
@@ -1383,7 +1381,6 @@ public class StorageProxy implements StorageProxyMBean
 
     private static void performLocally(Stage stage, Optional<IMutation> mutation, final Runnable runnable, final IAsyncCallbackWithFailure<?> handler)
     {
-        logger.info("processing stage 5");
         StageManager.getStage(stage).maybeExecuteImmediately(new LocalMutationRunnable(mutation)
         {
             public void runMayThrow()

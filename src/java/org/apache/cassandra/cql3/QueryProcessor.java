@@ -200,7 +200,7 @@ public class QueryProcessor implements QueryHandler
     public ResultMessage processStatement(CQLStatement statement, QueryState queryState, QueryOptions options, long queryStartNanoTime)
     throws RequestExecutionException, RequestValidationException
     {
-        logger.info("Process {} @CL.{}", statement, options.getConsistency());
+        logger.trace("Process {} @CL.{}", statement, options.getConsistency());
         ClientState clientState = queryState.getClientState();
         statement.checkAccess(clientState);
         statement.validate(clientState);
@@ -221,18 +221,15 @@ public class QueryProcessor implements QueryHandler
                                  Map<String, ByteBuffer> customPayload,
                                  long queryStartNanoTime) throws RequestExecutionException, RequestValidationException
     {
-        logger.info("processing state 0");
         return process(query, state, options, queryStartNanoTime);
     }
 
     public ResultMessage process(String queryString, QueryState queryState, QueryOptions options, long queryStartNanoTime)
     throws RequestExecutionException, RequestValidationException
     {
-        logger.info("processing state 1");
         ParsedStatement.Prepared p = getStatement(queryString, queryState.getClientState().cloneWithKeyspaceIfSet(options.getKeyspace()));
         options.prepare(p.boundNames);
         CQLStatement prepared = p.statement;
-        logger.info("processing state 1.2");
         if (prepared.getBoundTerms() != options.getValues().size())
             throw new InvalidRequestException("Invalid amount of bind variables");
         if (!queryState.getClientState().isInternal)
@@ -502,12 +499,10 @@ public class QueryProcessor implements QueryHandler
         Tracing.trace("Parsing {}", queryStr);
         ParsedStatement statement = parseStatement(queryStr);
         // Set keyspace for statement that require login
-        logger.info("statement: {}", statement.getClass().getName());
         if (statement instanceof CFStatement) {
             ((CFStatement) statement).prepareKeyspace(clientState);
         }
         Tracing.trace("Preparing statement");
-        logger.info("processing stage 1.1");
         return statement.prepare();
     }
 
