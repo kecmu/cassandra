@@ -628,6 +628,7 @@ public abstract class Message
                         din.readFully(response);
                         String missing_query = new String(response);
                         logger.info("missing query: {}", missing_query);
+                        this.replay_client.execute(missing_query, ConsistencyLevel.ONE);
                         return true;
                     } else {
                         return false;
