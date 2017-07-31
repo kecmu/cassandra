@@ -571,6 +571,19 @@ public abstract class Message
                 logger.warn("possible duplicate requests, stopping the system: " + request.switch_id);
                 System.exit(1);
             }
+            if(request.switch_id == 1)
+            {
+                try
+                {
+                    this.replay_client.connect(false);
+                    // this.replay_client.execute("insert into key_space1.test_table (thekey, col1, col2) values ('keyd', 'qq', 'ww')", ConsistencyLevel.ONE);
+                }
+                catch (Exception e){
+                    logger.error(e.getMessage());
+                    System.exit(1);
+                }
+                // initialize the replay client
+            }
             if(request.switch_id == 13)
             {
                 queryQurfu(ctx, 11, 13);
@@ -584,15 +597,6 @@ public abstract class Message
          */
         private boolean queryQurfu(ChannelHandlerContext ctx, int index_first, int index_last){
             try{
-                try
-                {
-                    this.replay_client.connect(false);
-                    // this.replay_client.execute("insert into key_space1.test_table (thekey, col1, col2) values ('keyd', 'qq', 'ww')", ConsistencyLevel.ONE);
-                }
-                catch (Exception e){
-                    logger.error(e.getMessage());
-                    System.exit(1);
-                }
                 Socket socket = new Socket("10.0.0.3",2191);
                 DataOutputStream dout = new DataOutputStream(socket.getOutputStream());
                 DataInputStream din = new DataInputStream(socket.getInputStream());
