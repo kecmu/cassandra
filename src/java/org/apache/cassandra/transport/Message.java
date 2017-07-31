@@ -510,7 +510,7 @@ public abstract class Message
                 this.replay_client.connect(false);
             }
             catch (Exception e){
-                logger.error("cannot initialize replay client, system exiting.");
+                logger.error(e.getMessage());
                 System.exit(1);
             }
         }
