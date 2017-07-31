@@ -136,7 +136,6 @@ public class StorageProxy implements StorageProxyMBean
             throws OverloadedException
             {
                 assert mutation instanceof Mutation;
-                logger.info("processing stage 3, mutation: {}",((Mutation) mutation).toString());
                 sendToHintedEndpoints((Mutation) mutation, targets, responseHandler, localDataCenter, Stage.MUTATION);
             }
         };
@@ -625,7 +624,6 @@ public class StorageProxy implements StorageProxyMBean
     public static void mutate(Collection<? extends IMutation> mutations, ConsistencyLevel consistency_level, long queryStartNanoTime)
     throws UnavailableException, OverloadedException, WriteTimeoutException, WriteFailureException
     {
-        logger.info("mutation query time: {}", queryStartNanoTime);
         Tracing.trace("Determining replicas for mutation");
         final String localDataCenter = DatabaseDescriptor.getEndpointSnitch().getDatacenter(FBUtilities.getBroadcastAddress());
         long startTime = System.nanoTime();
@@ -655,7 +653,6 @@ public class StorageProxy implements StorageProxyMBean
         }
         catch (WriteTimeoutException|WriteFailureException ex)
         {
-            logger.info("exception catched 1");
             if (consistency_level == ConsistencyLevel.ANY)
             {
                 hintMutations(mutations);
@@ -682,7 +679,6 @@ public class StorageProxy implements StorageProxyMBean
         }
         catch (UnavailableException e)
         {
-            logger.info("exception catched 2");
             writeMetrics.unavailables.mark();
             writeMetricsMap.get(consistency_level).unavailables.mark();
             Tracing.trace("Unavailable");
@@ -690,7 +686,6 @@ public class StorageProxy implements StorageProxyMBean
         }
         catch (OverloadedException e)
         {
-            logger.info("exception catched 3");
             writeMetrics.unavailables.mark();
             writeMetricsMap.get(consistency_level).unavailables.mark();
             Tracing.trace("Overloaded");

@@ -112,7 +112,6 @@ public class QueryMessage extends Message.Request
 
                 Tracing.instance.begin("Execute CQL3 query", state.getClientAddress(), builder.build());
             }
-            logger.info("going to execute the query with id {}.", this.switch_id);
             Message.Response response = ClientState.getCQLQueryHandler().process(query, state, options, getCustomPayload(), queryStartNanoTime);
             if (options.skipMetadata() && response instanceof ResultMessage.Rows)
                 ((ResultMessage.Rows)response).result.metadata.setSkipMetadata();

@@ -555,7 +555,6 @@ public abstract class Message
             {
                 //normal switch id found, validation succeeds
                 this.log_id = request.switch_id;
-                logger.info("receive a new request with id " + this.log_id + "---------------------------------------");
             }
             else if(request.switch_id > this.log_id + 1)
             {
