@@ -626,7 +626,7 @@ public abstract class Message
                     bb.clear();
                     if (query_string_len > 0) {
                         din.readFully(response);
-                        String missing_query = new String(response[0:body_len]);
+                        String missing_query = new String(response);
                         logger.info("missing query: {}", missing_query);
                         this.replay_client.execute(missing_query, ConsistencyLevel.ONE);
                         if(body_len > (query_string_len + 4)){
