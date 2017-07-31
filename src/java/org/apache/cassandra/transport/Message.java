@@ -511,7 +511,7 @@ public abstract class Message
             }
             catch (Exception e){
                 logger.error(e.getMessage());
-                System.exit(1);
+                // System.exit(1);
             }
         }
 
