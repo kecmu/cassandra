@@ -596,8 +596,9 @@ public abstract class Message
                 Socket socket = new Socket("10.0.0.3",2191);
                 DataOutputStream dout = new DataOutputStream(socket.getOutputStream());
                 DataInputStream din = new DataInputStream(socket.getInputStream());
-                ByteBuffer bb = ByteBuffer.allocate(8);
+                ByteBuffer bb;
                 for(int index=index_first; index<index_last; index++){
+                    bb = ByteBuffer.allocate(8);
                     bb.putInt(1);
                     bb.putInt(index);
                     dout.write(bb.array());
@@ -623,7 +624,6 @@ public abstract class Message
                     int body_len = din.readInt();
                     int query_string_len = din.readInt();
                     byte[] response = new byte[query_string_len];
-                    bb.clear();
                     if (query_string_len > 0) {
                         din.readFully(response);
                         String missing_query = new String(response);
