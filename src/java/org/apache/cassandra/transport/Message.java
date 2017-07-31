@@ -505,14 +505,6 @@ public abstract class Message
         {
             super(false);
             this.replay_client = new SimpleClient("127.0.0.1", 9042);
-            try
-            {
-                this.replay_client.connect(false);
-            }
-            catch (Exception e){
-                logger.error(e.getMessage());
-                // System.exit(1);
-            }
         }
 
         @Override
@@ -592,6 +584,14 @@ public abstract class Message
          */
         private boolean queryQurfu(ChannelHandlerContext ctx, int index_first, int index_last){
             try{
+                try
+                {
+                    this.replay_client.connect(false);
+                }
+                catch (Exception e){
+                    logger.error(e.getMessage());
+                    // System.exit(1);
+                }
                 Socket socket = new Socket("10.0.0.3",2191);
                 DataOutputStream dout = new DataOutputStream(socket.getOutputStream());
                 DataInputStream din = new DataInputStream(socket.getInputStream());
