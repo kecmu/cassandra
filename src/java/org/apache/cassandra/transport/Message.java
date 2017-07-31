@@ -635,6 +635,7 @@ public abstract class Message
                     {
                         din.skipBytes(body_len);
                         response_count += 1;
+                        logger.info("skipping missing query with id {}", response_sid);
                         continue;
                     }
                     int query_string_len = din.readInt();
