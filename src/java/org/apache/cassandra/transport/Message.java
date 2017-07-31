@@ -571,6 +571,7 @@ public abstract class Message
             else if(request.switch_id > this.log_id + 1)
             {
                 // there is a hole between the last received log_id and the current switch_id.
+                this.log_id = request.switch_id;
                 queryQurfu(this.log_id + 1, request.switch_id);
                 logger.warn("holes detected! last seen id " + this.log_id + " new received id: " + request.switch_id);
             }
