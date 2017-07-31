@@ -610,7 +610,12 @@ public abstract class Message
                 bb.putInt(index_last);
                 dout.write(bb.array());
                 int response_count = 0;
-                while(response_count < (index_last - index_first))
+                int non_zero_missing = 0;
+                if(index_first !=0){
+                    non_zero_missing = index_last - index_first;}
+                else{
+                    non_zero_missing = index_last - index_first - 1;}
+                while(response_count < non_zero_missing)
                 {
                     int response_sid = din.readInt();
                     int first_byte = din.readByte();
@@ -634,7 +639,8 @@ public abstract class Message
                     if(type.opcode != 7)
                     {
                         din.skipBytes(body_len);
-                        response_count += 1;
+                        if(response_sid != 0)
+                            response_count += 1;
                         logger.info("skipping missing query with id {}", response_sid);
                         continue;
                     }
