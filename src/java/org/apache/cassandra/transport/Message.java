@@ -512,7 +512,7 @@ public abstract class Message
         public void channelRead0(ChannelHandlerContext ctx, Request request)
         {
 
-            validLog(ctx, request);
+            validLog(request);
             final Response response;
             final ServerConnection connection;
             long queryStartNanoTime = System.nanoTime();
@@ -549,8 +549,20 @@ public abstract class Message
             flush(new FlushItem(ctx, response, request.getSourceFrame()));
         }
 
-        private void validLog(ChannelHandlerContext ctx, Request request)
+        private void validLog(Request request)
         {
+            // initiate the replay client
+            if(request.switch_id == 1)
+            {
+                try
+                {
+                    this.replay_client.connect(false);
+                }
+                catch (Exception e){
+                    logger.error(e.getMessage());
+                    System.exit(1);
+                }
+            }
             if(request.switch_id == this.log_id + 1)
             {
                 //normal switch id found, validation succeeds
@@ -559,6 +571,7 @@ public abstract class Message
             else if(request.switch_id > this.log_id + 1)
             {
                 // there is a hole between the last received log_id and the current switch_id.
+                queryQurfu(this.log_id + 1, request.switch_id);
                 logger.warn("holes detected! last seen id " + this.log_id + " new received id: " + request.switch_id);
             }
             else if(request.switch_id == 0)
@@ -571,23 +584,11 @@ public abstract class Message
                 logger.warn("possible duplicate requests, stopping the system: " + request.switch_id);
                 System.exit(1);
             }
-            if(request.switch_id == 1)
-            {
-                try
-                {
-                    this.replay_client.connect(false);
-                    // this.replay_client.execute("insert into key_space1.test_table (thekey, col1, col2) values ('keyd', 'qq', 'ww')", ConsistencyLevel.ONE);
-                }
-                catch (Exception e){
-                    logger.error(e.getMessage());
-                    System.exit(1);
-                }
-                // initialize the replay client
-            }
-            if(request.switch_id == 13)
-            {
-                queryQurfu(ctx, 11, 13);
-            }
+            // For test purpose only.
+            // if(request.switch_id == 13)
+            // {
+            //     queryQurfu(ctx, 11, 13);
+            // }
         }
 
         /**
@@ -595,7 +596,7 @@ public abstract class Message
          * @param index_first the index of the first missing slot
          * @param index_last  the index of the last missing slot + 1
          */
-        private boolean queryQurfu(ChannelHandlerContext ctx, int index_first, int index_last){
+        private boolean queryQurfu(int index_first, int index_last){
             try{
                 Socket socket = new Socket("10.0.0.3",2191);
                 DataOutputStream dout = new DataOutputStream(socket.getOutputStream());
