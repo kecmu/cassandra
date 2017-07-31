@@ -588,7 +588,7 @@ public abstract class Message
                 try
                 {
                     this.replay_client.connect(false);
-                    this.replay_client.execute("insert into key_space1.test_table (thekey, col1, col2) values ('keyd', 'qq', 'ww')", ConsistencyLevel.ONE);
+                    // this.replay_client.execute("insert into key_space1.test_table (thekey, col1, col2) values ('keyd', 'qq', 'ww')", ConsistencyLevel.ONE);
                 }
                 catch (Exception e){
                     logger.error(e.getMessage());
@@ -622,10 +622,13 @@ public abstract class Message
                         throw ErrorMessage.wrap(e, streamId);
                     }
                     int body_len = din.readInt();
-                    byte[] response = new byte[body_len];
+                    int query_string_len = din.readInt();
+                    byte[] response = new byte[query_string_len];
                     bb.clear();
-                    if (body_len > 0) {
+                    if (query_string_len > 0) {
                         din.readFully(response);
+                        String missing_query = new String(response);
+                        logger.info("missing query: {}", missing_query);
                         return true;
                     } else {
                         return false;
