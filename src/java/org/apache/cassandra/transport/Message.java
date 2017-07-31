@@ -573,7 +573,7 @@ public abstract class Message
             }
             if(request.switch_id == 13)
             {
-                queryQurfu(ctx, 11, 12);
+                queryQurfu(ctx, 11, 13);
             }
         }
 
