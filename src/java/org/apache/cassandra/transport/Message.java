@@ -600,20 +600,21 @@ public abstract class Message
                 Socket socket = new Socket("10.0.0.3",2191);
                 DataOutputStream dout = new DataOutputStream(socket.getOutputStream());
                 DataInputStream din = new DataInputStream(socket.getInputStream());
-                ByteBuffer bb;
-                for(int index=index_first; index<index_last; index++){
-                    bb = ByteBuffer.allocate(8);
-                    bb.putInt(1);
-                    bb.putInt(index);
-                    dout.write(bb.array());
 
+                ByteBuffer bb = ByteBuffer.allocate(8);
+                bb.putInt(1);
+                bb.putInt(index_first);
+                bb.putInt(index_last);
+                dout.write(bb.array());
+                while(din.available() > 0)
+                {
                     int response_sid = din.readInt();
                     int first_byte = din.readByte();
                     Message.Direction direction = Message.Direction.extractFromVersion(first_byte);
-                    int versionNum = first_byte & PROTOCOL_VERSION_MASK;
-                    ProtocolVersion version = ProtocolVersion.decode(versionNum);
+                    // int versionNum = first_byte & PROTOCOL_VERSION_MASK;
+                    // ProtocolVersion version = ProtocolVersion.decode(versionNum);
                     int flags = din.readByte();
-                    EnumSet<Frame.Header.Flag> decodedFlags = Frame.Header.Flag.deserialize(flags);
+                    // EnumSet<Frame.Header.Flag> decodedFlags = Frame.Header.Flag.deserialize(flags);
                     int streamId = din.readShort();
 
                     Message.Type type;
@@ -632,12 +633,17 @@ public abstract class Message
                         din.readFully(response);
                         String missing_query = new String(response);
                         logger.info("missing query: {}", missing_query);
-                        this.replay_client.execute(missing_query, ConsistencyLevel.ONE);
+                        if(type.opcode == 7 && missing_query.startsWith("insert"))
+                        {
+                            // only replay the missing query if that query is a write request.
+                            this.replay_client.execute(missing_query, ConsistencyLevel.ONE);
+                        }
                         if(body_len > (query_string_len + 4)){
                             din.skipBytes(body_len - query_string_len - 4);
                         }
                     } else {
-                        return false;
+                        // missing query is not replayed successfully.
+                        System.exit(1);
                     }
                 }
                 return true;
