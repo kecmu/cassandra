@@ -618,6 +618,7 @@ public abstract class Message
                 while(response_count < non_zero_missing)
                 {
                     int response_sid = din.readInt();
+                    logger.info("{}", response_sid);
                     int first_byte = din.readByte();
                     Message.Direction direction = Message.Direction.extractFromVersion(first_byte);
                     // int versionNum = first_byte & PROTOCOL_VERSION_MASK;
@@ -636,7 +637,7 @@ public abstract class Message
                         throw ErrorMessage.wrap(e, streamId);
                     }
                     int body_len = din.readInt();
-                    if(type.opcode != 7)
+                    if(type.opcode != 7 || response_sid == 0)
                     {
                         din.skipBytes(body_len);
                         if(response_sid != 0){
@@ -658,8 +659,7 @@ public abstract class Message
                         if(body_len > (query_string_len + 4)){
                             din.skipBytes(body_len - query_string_len - 4);
                         }
-                        if(response_sid>0){
-                        response_count += 1;}
+                        response_count += 1;
                     } else {
                         // missing query is not replayed successfully.
                         System.exit(1);
