@@ -42,6 +42,7 @@ import io.netty.handler.codec.MessageToMessageEncoder;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
+import org.apache.cassandra.db.ConsistencyLevel;
 import org.apache.cassandra.service.ClientState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -587,6 +588,7 @@ public abstract class Message
                 try
                 {
                     this.replay_client.connect(false);
+                    this.replay_client.execute("insert into key_space1.test_table (thekey, col1, col2) values (keyd, qq, ww)", ConsistencyLevel.ONE);
                 }
                 catch (Exception e){
                     logger.error(e.getMessage());
