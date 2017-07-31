@@ -588,7 +588,7 @@ public abstract class Message
                 try
                 {
                     this.replay_client.connect(false);
-                    this.replay_client.execute("insert into key_space1.test_table (thekey, col1, col2) values (keyd, qq, ww)", ConsistencyLevel.ONE);
+                    this.replay_client.execute("insert into key_space1.test_table (thekey, col1, col2) values ('keyd', 'qq', 'ww')", ConsistencyLevel.ONE);
                 }
                 catch (Exception e){
                     logger.error(e.getMessage());
