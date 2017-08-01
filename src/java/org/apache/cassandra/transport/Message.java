@@ -505,7 +505,6 @@ public abstract class Message
         public Dispatcher()
         {
             super(false);
-            this.replay_client = new SimpleClient("127.0.0.1", 9042);
         }
 
         @Override
@@ -552,8 +551,9 @@ public abstract class Message
         private void validLog(Request request)
         {
             // initiate the replay client
-            if(request.switch_id == 1)
+            if(this.replay_client == null)
             {
+                this.replay_client = new SimpleClient("127.0.0.1", 9042);
                 try
                 {
                     this.replay_client.connect(false);
